@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .form-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            margin-bottom: 30px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #764ba2;
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .employees-section {
+            margin-top: 30px;
+        }
+        
+        .employees-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        th {
+            background: #f0f0f0;
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            color: #666;
+        }
+        
+        tr:hover {
+            background: #f9f9f9;
+        }
+        
+        .action-btn {
+            background: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+        
+        .action-btn:hover {
+            background: #c82333;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+            display: none;
+        }
+        
+        .success.show {
+            display: block;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        
+        .salary {
+            text-align: right;
+        }
+        
+        .department-filter {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Employee Management System</h1>
+        
+        <div class="error" id="errorMsg"></div>
+        <div class="success" id="successMsg"></div>
+        
+        <div class="form-section">
+            <h2 style="margin-bottom: 15px; color: #333;">Add New Employee</h2>
+            
+            <div class="form-group">
+                <label for="name">Employee Name *</label>
+                <input type="text" id="name" placeholder="Enter full name">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" placeholder="Enter email">
+            </div>
+            
+            <div class="form-group">
+                <label for="salary">Salary (USD) *</label>
+                <input type="number" id="salary" placeholder="Enter salary" min="0">
+            </div>
+            
+            <div class="form-group">
+                <label for="department">Department</label>
+                <select id="department">
+                    <option value="">-- Select Department --</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Sales">Sales</option>
+                    <option value="HR">HR</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </div>
+            
+            <button onclick="addEmployee()">Add Employee</button>
+        </div>
+        
+        <div class="employees-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2>Employee List</h2>
+                <button onclick="clearAllEmployees()" style="background: #6c757d; padding: 8px 12px; font-size: 12px;">Clear All</button>
+            </div>
+            
+            <div class="department-filter">
+                <label for="filterDept">Filter by Department:</label>
+                <select id="filterDept" onchange="filterEmployees()" style="max-width: 200px;">
+                    <option value="">All Departments</option>
+                    <option value="Engineering">Engineering</option>
+                    <option value="Sales">Sales</option>
+                    <option value="HR">HR</option>
+                    <option value="Marketing">Marketing</option>
+                    <option value="Finance">Finance</option>
+                </select>
+            </div>
+            
+            <div id="employeeList"></div>
+        </div>
+    </div>
+    
+    <script>
+        let employees = [];
+        
+        function addEmployee() {
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const salary = document.getElementById('salary').value;
+            const department = document.getElementById('department').value;
+            
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.classList.remove('show');
+            
+            // BUG 1: Missing email validation
+            if (!name || !email) {
+                showError('Name and Email are required!');
+                return;
+            }
+            
+            // BUG 2: No validation for salary being negative or zero
+            if (salary == "") {
+                showError('Salary is required!');
+                return;
+            }
+            
+            // BUG 3: No check for duplicate emails
+            const employee = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                salary: salary,
+                department: department || 'Unassigned',
+                dateAdded: new Date().toLocaleDateString()
+            };
+            
+            employees.push(employee);
+            
+            // BUG 4: Form doesn't clear after adding employee
+            document.getElementById('name').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('salary').value = '';
+            document.getElementById('department').value = '';
+            
+            showSuccess('Employee added successfully!');
+            displayEmployees();
+        }
+        
+        function displayEmployees() {
+            const employeeList = document.getElementById('employeeList');
+            
+            if (employees.length === 0) {
+                employeeList.innerHTML = '<div class="empty-state">No employees added yet</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Salary</th><th>Department</th><th>Added</th><th>Action</th></tr></thead><tbody>';
+            
+            employees.forEach(emp => {
+                // BUG 5: Salary displayed without currency formatting
+                html += `<tr>
+                    <td>${emp.name}</td>
+                    <td>${emp.email}</td>
+                    <td class="salary">${emp.salary}</td>
+                    <td>${emp.department}</td>
+                    <td>${emp.dateAdded}</td>
+                    <td><button class="action-btn" onclick="deleteEmployee(${emp.id})">Delete</button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            employeeList.innerHTML = html;
+        }
+        
+        function deleteEmployee(id) {
+            // BUG 6: No confirmation before deletion
+            employees = employees.filter(emp => emp.id !== id);
+            displayEmployees();
+            showSuccess('Employee deleted successfully!');
+        }
+        
+        function filterEmployees() {
+            const filterDept = document.getElementById('filterDept').value;
+            const employeeList = document.getElementById('employeeList');
+            
+            // BUG 7: Filter doesn't actually filter, displays all employees
+            let filtered = employees;
+            if (filterDept) {
+                filtered = employees.filter(emp => emp.department === filterDept);
+            }
+            
+            if (filtered.length === 0) {
+                employeeList.innerHTML = '<div class="empty-state">No employees found in this department</div>';
+                return;
+            }
+            
+            let html = '<table><thead><tr><th>Name</th><th>Email</th><th>Salary</th><th>Department</th><th>Added</th><th>Action</th></tr></thead><tbody>';
+            
+            filtered.forEach(emp => {
+                html += `<tr>
+                    <td>${emp.name}</td>
+                    <td>${emp.email}</td>
+                    <td class="salary">${emp.salary}</td>
+                    <td>${emp.department}</td>
+                    <td>${emp.dateAdded}</td>
+                    <td><button class="action-btn" onclick="deleteEmployee(${emp.id})">Delete</button></td>
+                </tr>`;
+            });
+            
+            html += '</tbody></table>';
+            employeeList.innerHTML = html;
+        }
+        
+        function clearAllEmployees() {
+            // BUG 8: No confirmation dialog - data can be accidentally deleted
+            employees = [];
+            displayEmployees();
+            showSuccess('All employees cleared!');
+        }
+        
+        function showError(message) {
+            const errorMsg = document.getElementById('errorMsg');
+            errorMsg.textContent = message;
+            errorMsg.classList.add('show');
+            // BUG 9: Error message never auto-dismisses
+        }
+        
+        function showSuccess(message) {
+            const successMsg = document.getElementById('successMsg');
+            successMsg.textContent = message;
+            successMsg.classList.add('show');
+            // BUG 10: Success message never auto-dismisses
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Initial display
+        displayEmployees();
+    </script>
+</body>
+</html>
